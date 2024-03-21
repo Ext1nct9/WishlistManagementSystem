@@ -1,0 +1,15 @@
+# the versions specified are simply the latest versions as of the time of writing
+
+Flask>=3.0.2
+Flask-RESTful>=0.3.10
+
+# note that flask-restful-swagger cannot be used,
+# as it requires markupsafe under version 3.0.0, which will not
+# satisfy Flask's requirement. Downgrading Flask is also not an option
+# because earlier versions of Flask depends on a function in markupsafe
+# called soft_unicode, which has been removed after 2.0.1.
+
+# thus, you have to use flask-restful-swagger-3.
+flask-restful-swagger-3>=0.5.1
+behave>=1.2.6
+requests>=2.31.0
