@@ -9,6 +9,7 @@ from utils import api_utils, db_utils
 from utils.db_procedures import (
     create_item_in_wishlist,
     delete_item,
+    is_requester_using_link,
     is_requester_logged_in,
     get_item,
     get_wishlist_id_from_item,
@@ -50,9 +51,8 @@ class CreateItem(Resource):
         description = data.get('description')
         link = data.get('link')
         status = data.get('status')
-        link_id = data.get('link_id')
 
-        using_link = link_id is not None
+        using_link = is_requester_using_link(request)
         logged_in = is_requester_logged_in(request)
 
         # Validate the parameters
@@ -73,6 +73,7 @@ class CreateItem(Resource):
         check_link_permission = False
 
         if using_link:
+            link_id = request.args.get('link_permission_id')
             # Verify link permission exists
             if not verify_link_permission_exists(cursor, link_id):
                 db_utils.close(conn, cursor)
@@ -123,9 +124,8 @@ class UpdateItem(Resource):
         description = data.get('description')
         link = data.get('link')
         status = data.get('status')
-        link_id = data.get('link_id')
 
-        using_link = link_id is not None
+        using_link = is_requester_using_link(request)
         logged_in = is_requester_logged_in(request)
 
         # Validate the parameters
@@ -149,6 +149,7 @@ class UpdateItem(Resource):
         check_link_permission = False
 
         if using_link:
+            link_id = request.args.get('link_permission_id')
             # Verify link permission exists
             if not verify_link_permission_exists(cursor, link_id):
                 db_utils.close(conn, cursor)
@@ -194,10 +195,7 @@ class DeleteItem(Resource):
         # Parse data
         data = json.loads(request.data)
 
-        # Get the parameters
-        link_id = data.get('link_id')
-
-        using_link = link_id is not None
+        using_link = is_requester_using_link(request)
         logged_in = is_requester_logged_in(request)
 
         # Validate the parameters
@@ -219,6 +217,7 @@ class DeleteItem(Resource):
         check_link_permission = False
 
         if using_link:
+            link_id = request.args.get('link_permission_id')
             # Verify link permission exists
             if not verify_link_permission_exists(cursor, link_id):
                 db_utils.close(conn, cursor)
@@ -261,10 +260,7 @@ class ViewItem(Resource):
         # Parse data
         data = json.loads(request.data)
 
-        # Get the parameters
-        link_id = data.get('link_id')
-
-        using_link = link_id is not None
+        using_link = is_requester_using_link(request)
         logged_in = is_requester_logged_in(request)
 
         # Validate the parameters
@@ -286,6 +282,7 @@ class ViewItem(Resource):
         check_link_permission = False
 
         if using_link:
+            link_id = request.args.get('link_permission_id')
             # Verify link permission exists
             if not verify_link_permission_exists(cursor, link_id):
                 db_utils.close(conn, cursor)
@@ -328,10 +325,7 @@ class ViewWishlistItems(Resource):
         # Parse data
         data = json.loads(request.data)
 
-        # Get the parameters
-        link_id = data.get('link_id')
-
-        using_link = link_id is not None
+        using_link = is_requester_using_link(request)
         logged_in = is_requester_logged_in(request)
 
         # Validate the parameters
@@ -350,6 +344,7 @@ class ViewWishlistItems(Resource):
         check_link_permission = False
 
         if using_link:
+            link_id = request.args.get('link_permission_id')
             # Verify link permission exists
             if not verify_link_permission_exists(cursor, link_id):
                 db_utils.close(conn, cursor)

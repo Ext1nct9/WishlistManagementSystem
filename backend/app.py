@@ -9,11 +9,13 @@ from endpoints.WishlistTag import add_routes as add_WishlistTag_routes
 from endpoints.Comment import add_routes as add_Comment_routes
 from flask import Flask, make_response
 from flask_restful import Api
+from flask_cors import CORS
 from utils.api_utils import BASE_HOST, BASE_PORT
 
 
 # Initialize flask
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 # Testing routes

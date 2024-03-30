@@ -57,7 +57,7 @@ class LinkPermission(Resource):
         # query done, close the connection
         db_utils.close(conn, cursor)
 
-        return permission_links, 200
+        return {"wishlist_id": wishlist_id, "permission_links": permission_links}, 200
 
     @api_utils.login_required("You must be logged in to create a permission link.")
     def post(self, wishlist_id=None):

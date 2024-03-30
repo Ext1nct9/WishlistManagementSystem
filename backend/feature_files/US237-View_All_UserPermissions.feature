@@ -15,7 +15,7 @@ Feature: View all UserPermissions
     When the user with id <owner_user_id> attempts to view all UserPermissions with wishlist_id <owner_wishlist_id>
     Then the request returns the status code <status_code>
     And the response is a list of size 1
-    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other_user_id> and permissions <permissions>
+    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other_user_id> and email <other_email> and username <other_username> and permissions <permissions>
     And delete the UserAccount with id <owner_user_id>
     And delete the Wishlist with id <owner_wishlist_id>
     And delete the UserAccount with id <other_user_id>
@@ -39,9 +39,9 @@ Feature: View all UserPermissions
     When the user with id <owner_user_id> attempts to view all UserPermissions with wishlist_id <owner_wishlist_id>
     Then the request returns the status code <status_code>
     And the response is a list of size 3
-    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other1_user_id> and permissions <permissions1>
-    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other2_user_id> and permissions <permissions2>
-    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other3_user_id> and permissions <permissions3>
+    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other1_user_id> and email <other1_email> and username <other1_username> and permissions <permissions1>
+    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other2_user_id> and email <other2_email> and username <other2_username> and permissions <permissions2>
+    And the response is a list of UserPermissions that contains the UserPermission with wishlist_id <owner_wishlist_id> and user_id <other3_user_id> and email <other3_email> and username <other3_username> and permissions <permissions3>
     And delete the UserAccount with id <owner_user_id>
     And delete the Wishlist with id <owner_wishlist_id>
     And delete the UserAccount with id <other1_user_id>

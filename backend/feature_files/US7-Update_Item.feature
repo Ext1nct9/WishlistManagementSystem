@@ -4,29 +4,30 @@ Feature: Create, update, or delete an item
   So that I can manage the items in my wishlists by inputting new information.
 
   Background:
-    Given there is a Wishlist Management System
-    And the following wishlist exists in the system:
-      | Wishlist ID | Creator     | Name             | Description   |
-      | 1           | 123   | "My Wishlist"    | "A wishlist for me" |
+    Given the system contains the following user accounts:
+      | userAccountId | email             | username      | password        |
+      | 1             | tonyand@gmail.com | TonyAnde      | Abcdefghi1      |
+      | 2             | geminit@gmail.com | GeminiTa      | Thaye12345      |
+    And the system contains the following wishlists:
+      | wishlist_id | userAccountId   | name     | description       |
+      | 1           | 1               | School   | academic supplies |
+      | 2           | 2               | Brunch   | breakfast lunch   |
+    And the following items exist in the system:
+      | item_ID  | name    | description | link        | status  | rank | wishlist_id |
+      | 123      | Pencil  | for writing | staples.com | 1       | 1    | 1           |
+      | 456      | Bacon   | for cooking | maxi.ca     | 1       | 1    | 2           |
+    And the system contains the following user permissions:
+      | userAccountId | wishlist_id | permissions |
+      | 1             | 1           | 0b00000010  |
+      | 2             | 2           | 0b00000010  |
 
-    And the following item exists in the system:
-      | Item ID  | Creator     | Name      | Description   |
-      | 546      | 123         | "Pencil"  | "For writing" |
-
-  Scenario: Update valid item
-    Given the wishlist "<1>" has an item "<546>"
-    Given the user has permission to edit "<1>"
-    Given the user has permission to edit "<546>"
-    When the user updates an attribute of an item "<546>"
-    Then the attribute of the item is updated 
-
-  Scenario: Update invalid item
-    Given the wishlist does not have an item "<547>"
-    When the user updates an item "<547>"
-    Then there is an error message "<errormsg>"
-
-  Scenario: Update valid item with invalid permission
-    Given the wishlist "<1>" has an item "<546>"
-    Given the user does not have permission edit "<1>"
-    When the user edits an item "<546>" in "<1>"
-    Then there is an error message "<errormsg>"
+@Item
+  Scenario Outline: the user with permission of the wishlist successfully updates the item information with name and description
+    When the valid user <validAccountId> request to update an item <validItemId> with name <validName>, description <new_desc>, and status <status>
+    And the user <validAccountId> has permission <validPermission> to update wishlist < validWishlistId >
+    Then the item <validItemId> with the <oldName>, <oldDescription> shall no longer exist
+    Then the item <validItemId> with the <validName> and <new_desc> shall exist in the wishlist <validWishlistId>
+      Examples:
+        | validAccountId | validPermission | validWishlistId | validItemId | validName    | new_desc     | status | oldName | oldDescription |
+        | 1              | 0b00000010      | 1               | 123         | Fountain Pen | good writing | 1      | Pencil  | for writing    |
+        | 2              | 0b00000010      | 2               | 456         | Tofu         | vegan recipe | 1      | Bacon   | for cooking    |

@@ -10,6 +10,7 @@ def add_routes(api):
     api.add_resource(CreateAccount, '/create_account')
     api.add_resource(UpdateAccount, '/update_account')
     api.add_resource(DeleteAccount, '/delete_account')
+    api.add_resource(GetAccount, '/get_account')
 
 
 class CreateAccount(Resource):
@@ -74,6 +75,49 @@ class CreateAccount(Resource):
             db_utils.close(conn, cursor)
             # Return error message if account creation fails
             return {""}, 500
+
+class GetAccount(Resource):
+    @api_utils.login_required("You must be logged in to get your Account information.")
+    def get(self):
+        """
+        Handle GET request to get the information of an account
+        """
+        
+        # Extract data from the JSON request body
+        data = request.json
+        user_account_id = data.get('user_account_id')
+        
+        # Get the user's id
+        user_id = request.cookies.get('user_account_id')
+
+        # If this is not the same user, stop
+        if user_account_id != user_id:
+            return {'error_msg': 'You are not authorized to view this account information'}, 403
+
+        # Connect to the database
+        conn, cursor = db_utils.conn()
+
+        # Fetch the account information
+        cursor.execute('''
+            SELECT user_account_id,
+                email, 
+                username, 
+                password
+            FROM UserAccount
+            WHERE user_account_id = ?
+            RETURNING * 
+        ''', (user_account_id,))   
+
+        account = cursor.fetchone()
+
+        db_utils.close(conn, cursor, True)
+
+        return {            
+            "user_account_id": account[0],
+            "email": account[1],
+            "username": account[2],
+            "password": account[3]
+        }, 200
 
 
 class UpdateAccount(Resource):

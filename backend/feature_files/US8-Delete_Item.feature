@@ -4,35 +4,27 @@ Feature: Create, update, or delete an item
   So that I can manage the items in my wishlists by inputting new information.
 
   Background:
-    Given there is a Wishlist Management System
-    And the following wishlist exists in the system:
-      | Wishlist ID | Creator     | Name             | Description         |
-      | 1           | 123         | "My Wishlist"    | "A wishlist for me" |
+    Given the system has the following user account:
+      | userAccountId | email             | username      | password        |
+      | 1             | tonyand@gmail.com | TonyAnde      | Abcdefghi1      |
+    And the system has the following wishlist:
+      | wishlist_id | userAccountId   | name     | description       |
+      | 1           | 1               | School   | academic supplies |
+    And the system has the following items:
+      | item_ID  | name    | description | link        | status  | rank | wishlist_id |
+      | 123      | Pencil  | for writing | staples.com | 1       | 1    | 1           |
+      | 456      | Eraser  | for erasing | staples.com | 1       | 1    | 1           |
+    And the system has the following user permission:
+      | userAccountId | wishlist_id | permissions |
+      | 1             | 1           | 0b00000111  |
+      | 2             | 1           | 0b00000000  |
 
-    And the following item exists in the system:
-      | Item ID  | Creator     | Name      | Description   |
-      | 546      | 123         | "Pencil"  | "For writing" |
-
-   Scenario: Delete valid item in valid wishlist
-    Given the user has a wishlist "<1>"
-    Given the user has permission to edit "<1>"
-    When the user deletes an item "<546>" in "<1>"
-    Then the item is removed from the wishlist
-    And the id of the item is deleted
-
-  Scenario: Delete invalid item in valid wishlist
-    Given the user has a wishlist "<1>"
-    Given the user has permission to edit item "<1>"
-    When the user deletes an item "<547>" in wishlist "<1>"
-    Then there is an error message "<errormsg>"
-
-  Scenario: Delete valid item in invalid wishlist
-    Given the user does not have a wishlist "<2>"
-    When the user deletes an item "<546>" in "<2>"
-    Then there is an error message "<errormsg>"
-
-  Scenario: Delete valid item with invalid permission
-    Given the user has a wishlist "<1>"
-    Given the user does not have permission to edit "<1>"
-    When the user deletes an item "<546>" in "<1>"
-    Then there is an error message "<errormsg>"
+   @Item
+    Scenario Outline: the user with permission of the wishlist successfully deletes an item
+    When the valid user <validAccountId> requests to delete an item <validItemId>
+    And the user <validAccountId> has permission <validPermission> to edit items <validWishlistId>
+    Then the item <validItemId> with the <name>, <description> shall no longer exist in the system
+      Examples:
+        | validAccountId | validPermission | validWishlistId | validItemId | name    | description |
+        | 1              | 0b00000111      | 1               | 123         | Pencil  | for writing |
+        | 1              | 0b00000111      | 1               | 456         | Eraser  | for erasing |

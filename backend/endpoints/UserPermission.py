@@ -39,7 +39,10 @@ class GetUserPermissions(Resource):
         db_utils.close(conn, cursor)
 
         # Return the UserPermissions
-        return user_permissions, 200
+        return {
+            "wishlist_id": wishlist_id,
+            "user_permissions": user_permissions
+            }, 200
 
 class UserPermission(Resource):
 

@@ -1,0 +1,145 @@
+{
+    "wishlist_id": "e97075b4-a54a-4789-a1e4-349bc11c2f86",
+    "name": "My Birthday Wishlist",
+    "description": "A list of gifts I would love to receive for my birthday.",
+    "user_account_id": "074cf87b-1b21-4903-a3d3-863c09ce96d8",
+    "permissions": {
+        "user": {
+            "opened": null,
+            "editing": {
+                "view": false,
+                "edit": false,
+                "edit_items": false,
+                "edit_tags": false,
+                "edit_item_tags": false,
+                "comment": false
+            },
+            "user_permissions": [
+                {
+                    "user_account": {
+                        "user_account_id": "user account id 1",
+                        "username": "user1",
+                        "email": "user1@email.com"
+                    },
+                    "wishlist_id": "e97075b4-a54a-4789-a1e4-349bc11c2f86",
+                    "permissions": "0b101011"
+                },
+                {
+                    "user_account": {
+                        "user_account_id": "user account id 2",
+                        "username": "user2",
+                        "email": "user2@email.com"
+                    },
+                    "wishlist_id": "e97075b4-a54a-4789-a1e4-349bc11c2f86",
+                    "permissions": "0b100010"
+                },
+                {
+                    "user_account": {
+                        "user_account_id": "user account id 3",
+                        "username": "user3",
+                        "email": "user3@email.com"
+                    },
+                    "wishlist_id": "e97075b4-a54a-4789-a1e4-349bc11c2f86",
+                    "permissions": "0b011011"
+                }
+            ]
+        },
+        "link": {
+            "opened": null,
+            "editing": {
+                "view": false,
+                "edit": false,
+                "edit_items": false,
+                "edit_tags": false,
+                "edit_item_tags": false,
+                "comment": false
+            },
+            "link_permissions": [
+                {
+                    "link_permission_id": "fb7e3b6d-58bb-4d91-bb55-3bf409b07d8e",
+                    "permissions": "0b101001"
+                },
+                {
+                    "link_permission_id": "7ac74e0c-190a-4f12-80e5-11c1c6cf7d3a",
+                    "permissions": "0b110011"
+                },
+                {
+                    "link_permission_id": "7b81bade-41b8-4636-92e4-34a1d081c4d3",
+                    "permissions": "0b111001"
+                },
+                {
+                    "link_permission_id": "3cbe18e1-ff1e-4f4e-8b5a-04fa45d46c76",
+                    "permissions": "0b111110"
+                },
+                {
+                    "link_permission_id": "8d1b688d-832f-4de3-b0fb-6cf7071b1740",
+                    "permissions": "0b110010"
+                },
+                {
+                    "link_permission_id": "fd013a3d-7f05-4c0d-a0ac-bc1acdeef48e",
+                    "permissions": "0b111000"
+                },
+                {
+                    "link_permission_id": "812c4172-1568-49c7-bf62-8a32abbd53ae",
+                    "permissions": "0b111111"
+                },
+                {
+                    "link_permission_id": "e21c5a3d-44b6-4841-9e44-b35e9891b929",
+                    "permissions": "0b110111"
+                },
+                {
+                    "link_permission_id": "65dcce0b-08cf-4f30-aa82-184ad1c677fc",
+                    "permissions": "0b110100"
+                },
+                {
+                    "link_permission_id": "e74356f0-ef05-426f-a73d-f10834e02ff4",
+                    "permissions": "0b100011"
+                },
+                {
+                    "link_permission_id": "431d3564-f6a0-4c08-8614-b2fc3bf2421a",
+                    "permissions": "0b110101"
+                },
+                {
+                    "link_permission_id": "4540f2f0-cf24-4893-9a80-1062874f1276",
+                    "permissions": "0b101101"
+                },
+                {
+                    "link_permission_id": "ee3b7466-4a95-4d14-b0e6-660274785732",
+                    "permissions": "0b100110"
+                },
+                {
+                    "link_permission_id": "2b9d0b70-d6bf-4fc8-b900-92736681a008",
+                    "permissions": "0b101000"
+                },
+                {
+                    "link_permission_id": "d48daa26-53d1-45bc-8e05-95cf20ef1ae8",
+                    "permissions": "0b111101"
+                },
+                {
+                    "link_permission_id": "06d39e8b-121e-46d3-9e7a-33e20ed034c8",
+                    "permissions": "0b101110"
+                },
+                {
+                    "link_permission_id": "bf374c0b-87fb-4636-bf8d-07cf30512564",
+                    "permissions": "0b101010"
+                },
+                {
+                    "link_permission_id": "f5e0f7fc-4549-42f3-9461-54d24ad0a477",
+                    "permissions": "0b111011"
+                },
+                {
+                    "link_permission_id": "6dc6a51f-ee8a-47e7-8ff0-fd6815f198c6",
+                    "permissions": "0b100010"
+                },
+                {
+                    "link_permission_id": "96a8b071-d841-4e0a-8a68-d29f3d8af53d",
+                    "permissions": "0b100100"
+                },
+                {
+                    "link_permission_id": "b7b472c4-44ab-4627-84f7-33c9b8e8da8b",
+                    "permissions": "0b110110"
+                }
+            ]
+        }
+    }
+}

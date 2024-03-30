@@ -346,7 +346,7 @@ class ViewWishlistByUser(Resource):
                 user_wishlists_json = [{
                     "wishlist_id": user_wishlist[0],
                     "name": user_wishlist[1],
-                    "description": user_wishlist[2]
+                    "description": user_wishlist[2],
                 } for user_wishlist in user_wishlists]
 
                 return user_wishlists_json, 200
