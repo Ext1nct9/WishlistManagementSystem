@@ -1,28 +1,27 @@
-import { Collapse, Grid, Button } from '@mui/material'
-
-import {
-    buildPermissions,
-    canView,
-    canEditWishlist,
-    canEditItems,
-    canEditTags,
-    canSetTags,
-    canComment,
-} from '../permissionsValidation'
+import { Button, Dialog, Grid, IconButton, Typography } from '@mui/material'
+import { newLinkPermissionId } from '../permissionState'
 import { useAppDispatch } from '../../../app/hooks'
 import {
-    setUserPermissionComment,
-    setUserPermissionEdit,
-    setUserPermissionEditItems,
-    setUserPermissionEditItemTags,
-    setUserPermissionEditTags,
-    setUserPermissionView,
-    updateUserPermission,
+    createLinkPermission,
+    revokeLinkPermission,
+    setLinkPermissionComment,
+    setLinkPermissionEdit,
+    setLinkPermissionEditItems,
+    setLinkPermissionEditItemTags,
+    setLinkPermissionEditTags,
+    setLinkPermissionOpened,
+    setLinkPermissionView,
 } from '../../wishlist/wishlistSlice'
+import { buildPermissions } from '../permissionsValidation'
+import { ContentCopy, Delete } from '@mui/icons-material'
 
-export const UserPermissionCollapse = (props: {
+import { client_base_url } from '../../../appsettings.json'
+
+type AddLinkPermissionDialogProps = {
+    wishlist_id: string
     opened: string
     editing: {
+        link_permission_id: string
         view: boolean
         edit: boolean
         edit_items: boolean
@@ -30,25 +29,18 @@ export const UserPermissionCollapse = (props: {
         edit_item_tags: boolean
         comment: boolean
     }
-    user: {
-        wishlist_id: string
-        user_account: {
-            user_account_id: string
-            email: string
-            username: string
-        }
-        permissions: number
-    }
-}) => {
-    const { opened, editing, user } = props
+}
+
+const AddLinkPermissionDialog = (props: AddLinkPermissionDialogProps) => {
+    const { wishlist_id, opened, editing } = props
 
     const dispatch = useAppDispatch()
-
     return (
-        <Collapse
-            in={opened === user.user_account.user_account_id}
-            timeout='auto'
-            unmountOnExit
+        <Dialog
+            open={opened === newLinkPermissionId}
+            onClose={() => {
+                dispatch(setLinkPermissionOpened(null))
+            }}
         >
             <Grid
                 container
@@ -58,18 +50,52 @@ export const UserPermissionCollapse = (props: {
                     justifyContent: 'center',
                 }}
             >
+                {editing.link_permission_id && (
+                    <>
+                        <Grid item xs={2} />
+                        <Grid item xs={8}>
+                            <Typography>
+                                {editing.link_permission_id}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton
+                                onClick={() =>
+                                    navigator.clipboard.writeText(
+                                        `${client_base_url}/wishlist/${wishlist_id}?link_permission_id=${editing.link_permission_id}`
+                                    )
+                                }
+                            >
+                                {/* copies the **wishlist** link the user should use to access the wishlist with a permission link. */}
+                                <ContentCopy />
+                            </IconButton>
+                        </Grid>
+                        <Grid item xs={1}>
+                            <IconButton
+                                onClick={() => {
+                                    dispatch(
+                                        revokeLinkPermission({
+                                            wishlist_id: wishlist_id,
+                                            link_permission_id:
+                                                editing.link_permission_id,
+                                        })
+                                    )
+                                    dispatch(setLinkPermissionOpened(null))
+                                }}
+                            >
+                                {/* deletes the current link permission */}
+                                <Delete />
+                            </IconButton>
+                        </Grid>
+                    </>
+                )}
                 <Grid item xs={12}>
-                    {/*The opened check below is seemingly unnecessary, but it is used
-                    because opening/closing the collapse has a transition,
-                    but the state is updated before the transition starts.
-                    Without the check, the UI will flash a false state every time we close the collapse,
-                    thus misleading the user.*/}
-                    {(opened ? editing.view : canView(user.permissions)) ? (
+                    {editing.view ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionView(false))
+                                dispatch(setLinkPermissionView(false))
                             }}
                         >
                             Can View
@@ -79,7 +105,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionView(true))
+                                dispatch(setLinkPermissionView(true))
                             }}
                         >
                             Cannot View
@@ -87,16 +113,12 @@ export const UserPermissionCollapse = (props: {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    {(
-                        opened
-                            ? editing.edit
-                            : canEditWishlist(user.permissions)
-                    ) ? (
+                    {editing.edit ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionEdit(false))
+                                dispatch(setLinkPermissionEdit(false))
                             }}
                         >
                             Can Edit
@@ -106,7 +128,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionEdit(true))
+                                dispatch(setLinkPermissionEdit(true))
                             }}
                         >
                             Cannot Edit
@@ -114,16 +136,12 @@ export const UserPermissionCollapse = (props: {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    {(
-                        opened
-                            ? editing.edit_items
-                            : canEditItems(user.permissions)
-                    ) ? (
+                    {editing.edit_items ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionEditItems(false))
+                                dispatch(setLinkPermissionEditItems(false))
                             }}
                         >
                             Can Edit Items
@@ -133,7 +151,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionEditItems(true))
+                                dispatch(setLinkPermissionEditItems(true))
                             }}
                         >
                             Cannot Edit Items
@@ -141,16 +159,12 @@ export const UserPermissionCollapse = (props: {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    {(
-                        opened
-                            ? editing.edit_tags
-                            : canEditTags(user.permissions)
-                    ) ? (
+                    {editing.edit_tags ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionEditTags(false))
+                                dispatch(setLinkPermissionEditTags(false))
                             }}
                         >
                             Can Edit Tags
@@ -160,7 +174,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionEditTags(true))
+                                dispatch(setLinkPermissionEditTags(true))
                             }}
                         >
                             Cannot Edit Tags
@@ -168,16 +182,12 @@ export const UserPermissionCollapse = (props: {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    {(
-                        opened
-                            ? editing.edit_item_tags
-                            : canSetTags(user.permissions)
-                    ) ? (
+                    {editing.edit_item_tags ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionEditItemTags(false))
+                                dispatch(setLinkPermissionEditItemTags(false))
                             }}
                         >
                             Can Edit Item Tags
@@ -187,7 +197,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionEditItemTags(true))
+                                dispatch(setLinkPermissionEditItemTags(true))
                             }}
                         >
                             Cannot Edit Item Tags
@@ -195,14 +205,12 @@ export const UserPermissionCollapse = (props: {
                     )}
                 </Grid>
                 <Grid item xs={12}>
-                    {(
-                        opened ? editing.comment : canComment(user.permissions)
-                    ) ? (
+                    {editing.comment ? (
                         <Button
                             variant='text'
                             color='primary'
                             onClick={() => {
-                                dispatch(setUserPermissionComment(false))
+                                dispatch(setLinkPermissionComment(false))
                             }}
                         >
                             Can Comment
@@ -212,7 +220,7 @@ export const UserPermissionCollapse = (props: {
                             variant='text'
                             color='error'
                             onClick={() => {
-                                dispatch(setUserPermissionComment(true))
+                                dispatch(setLinkPermissionComment(true))
                             }}
                         >
                             Cannot Comment
@@ -226,15 +234,14 @@ export const UserPermissionCollapse = (props: {
                         size='small'
                         onClick={() => {
                             dispatch(
-                                updateUserPermission({
-                                    user_account_id: user.user_account.user_account_id,
-                                    wishlist_id: user.wishlist_id,
+                                createLinkPermission({
+                                    wishlist_id: wishlist_id,
                                     permissions: buildPermissions(editing),
                                 })
                             )
                         }}
                     >
-                        Save
+                        Create
                     </Button>
                 </Grid>
                 <Grid item xs={2}>
@@ -243,40 +250,15 @@ export const UserPermissionCollapse = (props: {
                         color='error'
                         size='small'
                         onClick={() => {
-                            dispatch(
-                                setUserPermissionView(canView(user.permissions))
-                            )
-                            dispatch(
-                                setUserPermissionEdit(
-                                    canEditWishlist(user.permissions)
-                                )
-                            )
-                            dispatch(
-                                setUserPermissionEditItems(
-                                    canEditItems(user.permissions)
-                                )
-                            )
-                            dispatch(
-                                setUserPermissionEditTags(
-                                    canEditTags(user.permissions)
-                                )
-                            )
-                            dispatch(
-                                setUserPermissionEditItemTags(
-                                    canSetTags(user.permissions)
-                                )
-                            )
-                            dispatch(
-                                setUserPermissionComment(
-                                    canComment(user.permissions)
-                                )
-                            )
+                            dispatch(setLinkPermissionOpened(null))
                         }}
                     >
-                        Cancel
+                        Close
                     </Button>
                 </Grid>
             </Grid>
-        </Collapse>
+        </Dialog>
     )
 }
+
+export default AddLinkPermissionDialog

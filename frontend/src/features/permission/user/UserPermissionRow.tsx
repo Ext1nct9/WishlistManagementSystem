@@ -12,21 +12,10 @@ import {
     revokeUserPermission,
 } from '../../wishlist/wishlistSlice'
 import { useAppDispatch } from '../../../app/hooks'
+import type { UserPermissionRowState } from '../permissionState'
 
-const UserPermissionRow = (props: {
-    wishlist_id: string
-    opened: string
-    user: {
-        user_account: {
-            user_account_id: string
-            email: string
-            username: string
-        }
-        wishlist_id: string
-        permissions: number
-    }
-}) => {
-    const { wishlist_id, opened, user } = props
+const UserPermissionRow = (props: UserPermissionRowState) => {
+    const { wishlist_id, opened, editing, user } = props
 
     // used to dispatch reducer actions, namely to update and delete the current user permission
     const dispatch = useAppDispatch()
@@ -80,7 +69,7 @@ const UserPermissionRow = (props: {
                     onClick={() =>
                         dispatch(
                             revokeUserPermission({
-                                user_accout_id: user.user_account.user_account_id,
+                                user_account_id: user.user_account.user_account_id,
                                 wishlist_id: wishlist_id,
                             })
                         )
@@ -91,7 +80,11 @@ const UserPermissionRow = (props: {
                 </IconButton>
             </Grid>
             {/* The dropdown menu. It is hidden if opened does not correspond to the current link. */}
-            <UserPermissionCollapse opened={opened} user={user} />
+            <UserPermissionCollapse
+            opened={opened}
+            editing={editing}
+            user={user}
+            />
         </Grid>
     )
 }

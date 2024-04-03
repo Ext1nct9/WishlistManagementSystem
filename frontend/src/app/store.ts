@@ -4,16 +4,31 @@ import { setupListeners } from '@reduxjs/toolkit/query'
 import { counterSlice } from '../features/counter/counterSlice'
 import { quotesApiSlice } from '../features/quotes/quotesApiSlice'
 import { wishlistSlice } from '../features/wishlist/wishlistSlice'
-import { persistReducer, persistStore } from 'redux-persist'
+import { accountSlice } from '../features/account/accountSlice'
+import {
+    FLUSH,
+    PAUSE,
+    PERSIST,
+    persistReducer,
+    persistStore,
+    PURGE,
+    REGISTER,
+    REHYDRATE,
+} from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer: Reducer = combineSlices(counterSlice, quotesApiSlice, wishlistSlice)
+const rootReducer: Reducer = combineSlices(
+    counterSlice,
+    quotesApiSlice,
+    wishlistSlice,
+    accountSlice
+)
 
 const persistConfig = {
-  key: "root",
-  storage,
+    key: 'root',
+    storage,
 }
 
 const persistRootReducer = persistReducer(persistConfig, rootReducer)
@@ -29,7 +44,18 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
         // Adding the api middleware enables caching, invalidation, polling,
         // and other useful features of `rtk-query`.
         middleware: getDefaultMiddleware => {
-            return getDefaultMiddleware().concat(quotesApiSlice.middleware)
+            return getDefaultMiddleware({
+                serializableCheck: {
+                    ignoredActions: [
+                        FLUSH,
+                        REHYDRATE,
+                        PAUSE,
+                        PERSIST,
+                        PURGE,
+                        REGISTER,
+                    ],
+                },
+            }).concat(quotesApiSlice.middleware)
         },
         preloadedState,
     })

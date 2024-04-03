@@ -11,7 +11,11 @@ import type { PermissionState } from './permissionState'
 import LinkPermissions from './link/LinkPermissions'
 import UserPermissions from './user/UserPermissions'
 import { useAppDispatch } from '../../app/hooks'
-import { setPermissionOpened } from '../wishlist/wishlistSlice'
+import {
+    setLinkPermissionCreateNew,
+    setPermissionOpened,
+    setUserPermissionCreateNew,
+} from '../wishlist/wishlistSlice'
 
 declare type UserPermissionsProps = DialogProps &
     PermissionState & {
@@ -41,8 +45,15 @@ const Permissions = (props: UserPermissionsProps) => {
                     </Typography>
                 </Grid>
                 <Grid item xs={3}>
-                    {/* Placeholder button, later will map to the component that allows creation of a new link permission. */}
-                    <Button variant='contained' size='small'>
+                    <Button
+                        variant='contained'
+                        size='small'
+                        onClick={() => {
+                            dispatch(
+                                setUserPermissionCreateNew({})
+                            )
+                        }}
+                    >
                         Create New
                     </Button>
                 </Grid>
@@ -66,8 +77,15 @@ const Permissions = (props: UserPermissionsProps) => {
                     </Typography>
                 </Grid>
                 <Grid item xs={3}>
-                    {/* Placeholder button, later will map to the component that allows creation of a new user permission. */}
-                    <Button variant='contained' size='small'>
+                    <Button
+                        variant='contained'
+                        size='small'
+                        onClick={() => {
+                            dispatch(
+                                setLinkPermissionCreateNew({})
+                            )
+                        }}
+                    >
                         Create New
                     </Button>
                 </Grid>

@@ -4,6 +4,7 @@
     "description": "A list of gifts I would love to receive for my birthday.",
     "user_account_id": "074cf87b-1b21-4903-a3d3-863c09ce96d8",
     "permissions": {
+        "open": false,
         "user": {
             "opened": null,
             "editing": {
@@ -141,5 +142,6 @@
                 }
             ]
         }
-    }
+    },
+    "openDialog": false
 }

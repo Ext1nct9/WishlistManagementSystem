@@ -26,6 +26,21 @@ export type UserPermissionState = {
               comment: boolean
           } // current unsaved editing of the currently opened user permission row
     user_permissions: UserPermission[]
+    waiting: boolean
+}
+
+export type UserPermissionRowState = {
+    wishlist_id: string
+    opened: string
+    editing: {
+        view: boolean
+        edit: boolean
+        edit_items: boolean
+        edit_tags: boolean
+        edit_item_tags: boolean
+        comment: boolean
+    }
+    user: UserPermission
 }
 
 export type LinkPermission = {
@@ -39,6 +54,7 @@ export type LinkPermissionState = {
         | null
         | undefined
         | {
+              link_permission_id: string
               view: boolean
               edit: boolean
               edit_items: boolean
@@ -47,12 +63,14 @@ export type LinkPermissionState = {
               comment: boolean
           } // current unsaved editing of the currently opened link permission row
     link_permissions: LinkPermission[]
+    waiting: boolean
 }
 
 export type LinkPermissionRowState = {
     wishlist_id: string
     opened: string
     editing: {
+        link_permission_id: string
         view: boolean
         edit: boolean
         edit_items: boolean
@@ -71,3 +89,7 @@ export type PermissionState = {
     user: UserPermissionState
     link: LinkPermissionState
 }
+
+export const newLinkPermissionId = '_new_link_permission'
+
+export const newUserPermissionId = '_new_user_permission'

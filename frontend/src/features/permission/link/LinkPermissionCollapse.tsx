@@ -201,7 +201,6 @@ export const LinkPermissionCollapse = (props: LinkPermissionRowState) => {
                     )}
                 </Grid>
                 <Grid item xs={8} />
-                {/* Placeholder buttons, later will map to the component that allows updating and deleting the current link permission. */}
                 <Grid item xs={2}>
                     <Button
                         variant='contained'
