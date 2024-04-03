@@ -15,7 +15,7 @@ from utils.api_utils import BASE_HOST, BASE_PORT
 
 # Initialize flask
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 api = Api(app)
 
 # Testing routes

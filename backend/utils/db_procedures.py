@@ -54,13 +54,26 @@ def verify_user_account_exists(cursor, user_account_id) -> bool:
     return cursor.fetchone() is not None
 
 
+def verify_user_account_exists_by_email(cursor, email) -> bool:
+    cursor.execute('''
+        SELECT 0
+        FROM UserAccount
+        WHERE email = ?
+    ''', (email,))
+    return cursor.fetchone() is not None
+
+
 def get_all_user_permissions_for_wishlist(cursor, wishlist_id) -> list[dict[str, Any]]:
     cursor.execute('''
         SELECT
-            wishlist_id,
-            user_account_id,
-            permissions
-        FROM UserPermission
+            up.wishlist_id,
+            ua.user_account_id,
+            ua.email,
+            ua.username,
+            up.permissions
+        FROM UserPermission AS up
+        LEFT JOIN UserAccount AS ua
+        ON up.user_account_id = ua.user_account_id
         WHERE wishlist_id = ?
     ''', (wishlist_id,))
 
@@ -68,8 +81,12 @@ def get_all_user_permissions_for_wishlist(cursor, wishlist_id) -> list[dict[str,
 
     return [{
         "wishlist_id": user_permission[0],
-        "user_account_id": user_permission[1],
-        "permissions": user_permission[2]
+        "user_account": {
+            "user_account_id": user_permission[1],
+            "email": user_permission[2],
+            "username": user_permission[3]
+        },
+        "permissions": user_permission[4]
     } for user_permission in user_permissions]
 
 def verify_user_permission_exists(cursor, user_account_id, wishlist_id) -> bool:
@@ -79,6 +96,18 @@ def verify_user_permission_exists(cursor, user_account_id, wishlist_id) -> bool:
         WHERE user_account_id = ?
         AND wishlist_id = ?
     ''', (user_account_id, wishlist_id,))
+    return cursor.fetchone() is not None
+
+
+def verify_user_permission_exists_by_user_account_email_and_wishlist_id(cursor, user_account_email, wishlist_id) -> bool:
+    cursor.execute('''
+        SELECT 0
+        FROM UserPermission AS up
+        LEFT JOIN UserAccount AS ua
+        ON up.user_account_id = ua.user_account_id
+        WHERE ua.email = ?
+        AND up.wishlist_id = ?
+    ''', (user_account_email, wishlist_id,))
     return cursor.fetchone() is not None
 
 
@@ -95,7 +124,7 @@ def get_user_account_by_email(cursor: Cursor, email: str) -> dict[str, Any]:
         "email": user_account[1],
         "username": user_account[2],
         "password": user_account[3],
-        "pfp": user_account[3]
+        "pfp": user_account[4]
     }
 
 
@@ -262,7 +291,8 @@ def update_link_permission(cursor: Cursor, link_permission_id: str, permissions:
 
     return {
         "link_permission_id": link_permission[0],
-        "permissions": link_permission[1]
+        "permissions": link_permission[1],
+        "wishlist_id": link_permission[2]
     }
 
 
@@ -281,14 +311,24 @@ def create_user_permission(cursor: Cursor, user_account_id: str, wishlist_id: st
     ''', (user_account_id, wishlist_id, permissions))
     new_user_permission = cursor.fetchone()
 
-    return dict(
-        zip([
-            "user_account_id",
-            "wishlist_id",
-            "permissions"
-        ],
-            new_user_permission)
-    )
+    cursor.execute('''
+        SELECT
+            email,
+            username
+        FROM UserAccount
+        WHERE user_account_id = ?
+    ''', (user_account_id,))
+    user_info = cursor.fetchone()
+
+    return {
+        "user_account": {
+            "user_account_id": new_user_permission[0],
+            "email": user_info[0],
+            "username": user_info[1]
+        },
+        "wishlist_id": new_user_permission[1],
+        "permissions": new_user_permission[2]
+    }
 
 
 def delete_user_permission(cursor: Cursor, user_account_id: str, wishlist_id: str) -> None:
@@ -428,6 +468,10 @@ def delete_item(cursor, item_id):
         WHERE item_id = ?
     ''', (item_id,))
 
+def is_requester_using_link(request):
+    link_id = request.args.get('link_permission_id')
+    using_link = link_id is not None and link_id != ""
+    return using_link
 
 def is_requester_logged_in(request):
     requester_id = request.cookies.get('user_account_id')

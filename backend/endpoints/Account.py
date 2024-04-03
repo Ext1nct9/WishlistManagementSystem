@@ -8,7 +8,10 @@ from utils import db_utils, api_utils
 # add routes
 def add_routes(api):
     api.add_resource(CreateAccount, '/create_account')
-    api.add_resource(UpdateAccount, '/update_account')
+    api.add_resource(UpdateAccountEmail, '/update_account_email')
+    api.add_resource(UpdateAccountUsername, '/update_account_username')
+    api.add_resource(UpdateAccountPassword, '/update_account_password')
+    api.add_resource(DeleteAccountConfirmation, '/delete_account_confirmation')
     api.add_resource(DeleteAccount, '/delete_account')
     api.add_resource(GetAccount, '/get_account')
 
@@ -76,6 +79,7 @@ class CreateAccount(Resource):
             # Return error message if account creation fails
             return {""}, 500
 
+
 class GetAccount(Resource):
     @api_utils.login_required("You must be logged in to get your Account information.")
     def get(self):
@@ -83,16 +87,9 @@ class GetAccount(Resource):
         Handle GET request to get the information of an account
         """
         
-        # Extract data from the JSON request body
-        data = request.json
-        user_account_id = data.get('user_account_id')
-        
         # Get the user's id
         user_id = request.cookies.get('user_account_id')
 
-        # If this is not the same user, stop
-        if user_account_id != user_id:
-            return {'error_msg': 'You are not authorized to view this account information'}, 403
 
         # Connect to the database
         conn, cursor = db_utils.conn()
@@ -105,10 +102,12 @@ class GetAccount(Resource):
                 password
             FROM UserAccount
             WHERE user_account_id = ?
-            RETURNING * 
-        ''', (user_account_id,))   
+        ''', (user_id,))   
 
         account = cursor.fetchone()
+
+        # Commit the changes
+        conn.commit()
 
         db_utils.close(conn, cursor, True)
 
@@ -120,9 +119,9 @@ class GetAccount(Resource):
         }, 200
 
 
-class UpdateAccount(Resource):
+class UpdateAccountEmail(Resource):
     """
-    Handle PUT request to update an account
+    Handle PUT request to update an account's email
     """
     @api_utils.login_required("You must be logged in to update your account.")
     def put(self):
@@ -130,8 +129,6 @@ class UpdateAccount(Resource):
         data = request.json
         user_account_id = data.get('user_account_id')
         email = data.get('email')
-        username = data.get('username')
-        password = data.get('password')
 
         # Get the user's id
         user_id = request.cookies.get('user_account_id')
@@ -140,16 +137,117 @@ class UpdateAccount(Resource):
         if user_account_id != user_id:
             return {'error_msg': 'You are not authorized to update this account'}, 403
 
-        # Connect to the database
-        conn, cursor = db_utils.conn()
-
         # If the email is empty
         if email is None or not trim_string(email):
             return {'error_msg': 'Email entry must not be empty (no whitespace)'}, 400
 
+        # Connect to the database
+        conn, cursor = db_utils.conn()
+
+         # Update the account
+        cursor.execute('''
+            UPDATE UserAccount
+            SET email = ?
+            WHERE user_account_id = ?
+        ''', (email, user_id,))   
+        
+        # Commit the changes
+        conn.commit()
+
+        # Fetch the account information
+        cursor.execute('''
+            SELECT user_account_id,
+                email, 
+                username, 
+                password
+            FROM UserAccount
+            WHERE user_account_id = ?
+        ''', (user_id,))  
+
+        updated_account = cursor.fetchone()
+
+        db_utils.close(conn, cursor, True)
+
+        return {            
+            "user_account_id": updated_account[0],
+            "email": updated_account[1],
+            "username": updated_account[2],
+        }, 200
+
+
+class UpdateAccountUsername(Resource):
+    """
+    Handle PUT request to update an account's username
+    """
+    @api_utils.login_required("You must be logged in to update your account.")
+    def put(self):
+        # Extract data from the JSON request body
+        data = request.json
+        user_account_id = data.get('user_account_id')
+        username = data.get('username')
+
+        # Get the user's id
+        user_id = request.cookies.get('user_account_id')
+
+        # If this is not the same user, stop
+        if user_account_id != user_id:
+            return {'error_msg': 'You are not authorized to update this account'}, 403
+
         # If the username is empty 
         if username is None or not trim_string(username):
             return {'error_msg': 'Username entry must not be empty (no whitespace)'}, 400
+
+        # Connect to the database
+        conn, cursor = db_utils.conn()
+
+        # Update the account
+        cursor.execute('''
+            UPDATE UserAccount
+            SET username = ?
+            WHERE user_account_id = ?
+        ''', (username, user_id,))   
+
+        # Commit the changes
+        conn.commit()
+
+        # Fetch the account information
+        cursor.execute('''
+            SELECT user_account_id,
+                email, 
+                username, 
+                password
+            FROM UserAccount
+            WHERE user_account_id = ?
+        ''', (user_id,))  
+
+        updated_account = cursor.fetchone()
+
+        db_utils.close(conn, cursor, True)
+
+        return {            
+            "user_account_id": updated_account[0],
+            "email": updated_account[1],
+            "username": updated_account[2],
+        }, 200
+
+
+class UpdateAccountPassword(Resource):
+    """
+    Handle PUT request to update an account's password
+    """
+    @api_utils.login_required("You must be logged in to update your account.")
+    def put(self):
+        # Extract data from the JSON request body
+        data = request.json
+        user_account_id = data.get('user_account_id')
+        password = data.get('password')
+
+        # Get the user's id
+        user_id = request.cookies.get('user_account_id')
+
+        # If this is not the same user, stop
+        if user_account_id != user_id:
+            return {'error_msg': 'You are not authorized to update this account'}, 403
 
         # If the password is empty 
         if password is None or not trim_string(password):
@@ -170,13 +268,28 @@ class UpdateAccount(Resource):
         # Hash the password using SHA-256
         hashed_password = api_utils.hash_password(password)
 
+        # Connect to the database
+        conn, cursor = db_utils.conn()
+
         # Update the account
         cursor.execute('''
             UPDATE UserAccount
-            SET email = ?, username = ?, password = ?
+            SET password = ?
             WHERE user_account_id = ?
-            RETURNING * 
-        ''', (email, username, hashed_password, user_id,))   
+        ''', (hashed_password, user_id,))   
+
+        # Commit the changes
+        conn.commit()
+
+        # Fetch the account information
+        cursor.execute('''
+            SELECT user_account_id,
+                email, 
+                username, 
+                password
+            FROM UserAccount
+            WHERE user_account_id = ?
+        ''', (user_id,))  
 
         updated_account = cursor.fetchone()
 
@@ -195,16 +308,8 @@ class DeleteAccount(Resource):
     """
     @api_utils.login_required("You must be logged in to delete your account.")
     def delete(self):
-        # Extract data from the JSON request body
-        data = request.json
-        user_account_id = data.get('user_account_id')
-
         # Get the user's id
         user_id = request.cookies.get('user_account_id')
-
-        # If this is not the same user, stop
-        if user_account_id != user_id:
-            return {'error_msg': 'You are not authorized to delete this account'}, 403
 
         # Connect to the database
         conn, cursor = db_utils.conn()
@@ -314,6 +419,42 @@ class DeleteAccount(Resource):
         db_utils.close(conn, cursor, True)
 
         return {}, 204
+
+
+class DeleteAccountConfirmation(Resource):
+    """
+    Handle POST request to see if the password provided matches the one stored in the db
+    """
+    @api_utils.login_required("You must be logged in to delete your account.")
+    def post(self):
+        # Extract data from the JSON request body
+        data = request.json
+        user_account_id = data.get('user_account_id')
+        password = data.get('password')
+
+        # Get the user's id
+        user_id = request.cookies.get('user_account_id')
+
+        # If this is not the same user, stop
+        if user_account_id != user_id:
+            return {'error_msg': 'You are not authorized to delete this account'}, 403
+
+        # If the password is empty 
+        if password is None or not trim_string(password):
+            return {'error_msg': 'Password entry must not be empty (no whitespace)'}, 400
+
+        # Connect to the database
+        conn, cursor = db_utils.conn()
+
+        # Wrong password
+        if (not api_utils.verify_password(cursor, user_id, password)): 
+            db_utils.close(conn, cursor, True)
+            return {'error_msg': 'Unauthorized: Incorrect password'}, 401
+
+        # Correct password
+        else: 
+            db_utils.close(conn, cursor, True)
+            return {}, 204
 
 
 def has_whitespace(password):

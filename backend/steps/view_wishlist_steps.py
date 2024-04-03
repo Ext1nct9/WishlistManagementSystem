@@ -63,7 +63,7 @@ def retrieve_wishlist_from_database(wishlistId):
 
     # Fetch wishlists from the database for the specified userAccountId
     cursor.execute('''
-        SELECT wishlist_id, name, description
+        SELECT wishlist_id, name, description, user_account_id
         FROM Wishlist
         WHERE wishlist_id = ?
     ''', (wishlistId,))
@@ -77,7 +77,8 @@ def retrieve_wishlist_from_database(wishlistId):
     return {
         "wishlist_id": wishlist[0],
         "name":wishlist[1],
-        "description":wishlist[2]
+        "description":wishlist[2],
+        "user_account_id":wishlist[3],
     }
 
 

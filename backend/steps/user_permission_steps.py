@@ -78,16 +78,17 @@ def up_create_UserPermission(context, owner_wishlist_id, other_user_id, permissi
     db_utils.close(conn, cursor, True)
 
 # When
-@when("the user with id {requester_id} attempts to add a new UserPermission with permissions {permissions} to the Wishlist with id {owner_wishlist_id} for the user with id {other_user_id}")
-def up_attempt_to_create_UserPermission(context, requester_id, permissions, owner_wishlist_id, other_user_id):
+@when("the user with id {requester_id} attempts to add a new UserPermission with permissions {permissions} to the Wishlist with id {owner_wishlist_id} for the user with email {email}")
+def up_attempt_to_create_UserPermission(context, requester_id, permissions, owner_wishlist_id, email):
     # Create request URL
-    url = f"{BASE_URL}/{UP}/{other_user_id}/{owner_wishlist_id}"
+    url = f"{BASE_URL}/create_user_permission/{owner_wishlist_id}"
 
     # Create cookies
     cookies = {"user_account_id": requester_id}
 
     # Create request body
     body = {
+        "user_account_email": email,
         "permissions": int(permissions)
     }
 
@@ -197,15 +198,23 @@ def up_check_UserPermission_does_not_exist(context, wishlist_id, user_id):
 
 @then("the response is a list of size {size}")
 def up_check_response_size(context, size):
-    assert len(json.loads(context.response.text)) == int(size)
+    assert len(json.loads(context.response.text)["user_permissions"]) == int(size)
 
-@then("the response is a list of UserPermissions that contains the UserPermission with wishlist_id {wishlist_id} and user_id {user_id} and permissions {permissions}")
-def up_check_response_contains_UserPermission(context, wishlist_id, user_id, permissions):
+@then("the response is a list of UserPermissions that contains the UserPermission with wishlist_id {wishlist_id} and user_id {user_id} and email {email} and username {username} and permissions {permissions}")
+def up_check_response_contains_UserPermission(context, wishlist_id, user_id, email, username, permissions):
     # Parse response
-    response = json.loads(context.response.text)
+    response = json.loads(context.response.text)["user_permissions"]
 
     # Check if UserPermission exists in response
-    assert {"wishlist_id": wishlist_id, "user_account_id": user_id, "permissions": int(permissions)} in response
+    assert {
+        "wishlist_id": wishlist_id,
+        "user_account": {
+            "user_account_id": user_id,
+            "email": email,
+            "username": username
+        },
+        "permissions": int(permissions)
+    } in response
 
 # Cleanup
 @then("delete the UserAccount with id {user_account_id}")

@@ -7,6 +7,21 @@ from utils import db_utils, api_utils
 
 def add_routes(api):
     api.add_resource(Login, '/login')
+    api.add_resource(Logout, '/logout')
+
+class Logout(Resource):
+
+    def post(self):
+        """
+        Handle POST request to logout user
+        """
+        # Clear the user_id cookie
+        response = make_response('', 200)
+        response.set_cookie('user_account_id', '', expires=0, path='/', httponly=True)
+        return response
+
+
+    
 
 
 class Login(Resource):
@@ -53,3 +68,5 @@ class Login(Resource):
             db_utils.close(conn, cursor)
             # Return error message if login fails
             return {""}, 500
+
+

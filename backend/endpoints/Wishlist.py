@@ -266,7 +266,7 @@ class ViewWishlist(Resource):
                 user_permission = 0b00111111
 
             # Check if there exists a UserPermission linking the requester to the wishlist
-            if db_procedures.verify_user_permission_exists(cursor, user_account_id, wishlist_id):
+            elif db_procedures.verify_user_permission_exists(cursor, user_account_id, wishlist_id):
                 user_permission = db_procedures.get_user_permission_level(cursor, user_account_id, wishlist_id)
 
         # If link_permission_id exists in GET parameters
@@ -284,7 +284,7 @@ class ViewWishlist(Resource):
             
             # get the wishlist information
             cursor.execute('''
-                SELECT wishlist_id, name, description 
+                SELECT wishlist_id, name, description, user_account_id
                 FROM Wishlist
                 WHERE wishlist_id = ?
             ''', (wishlist_id,))
@@ -298,7 +298,8 @@ class ViewWishlist(Resource):
             return {
                 "wishlist_id": wishlist[0],
                 "name": wishlist[1],
-                "description": wishlist[2]
+                "description": wishlist[2],
+                "user_account_id": wishlist[3],
             }, 200
                 
         else: 
@@ -328,7 +329,7 @@ class ViewWishlistByUser(Resource):
     
             requester_id = request.cookies.get('user_account_id')
 
-            if requester_id is user_account_id:
+            if requester_id == user_account_id:
                 # get the wishlist information
                 cursor.execute('''
                     SELECT wishlist_id, name, description FROM Wishlist
